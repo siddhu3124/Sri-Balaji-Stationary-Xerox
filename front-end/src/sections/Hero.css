@@ -1,0 +1,250 @@
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 8.5rem 0 5rem 0;
+  overflow: hidden;
+}
+
+/* Glowing Blobs */
+.hero-glowing-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -1;
+  opacity: 0.15;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background-color: var(--accent-color);
+  top: 10%;
+  right: -100px;
+}
+
+.blob-2 {
+  width: 300px;
+  height: 300px;
+  background-color: #34c759;
+  bottom: 15%;
+  left: -50px;
+}
+
+/* Floating Animations */
+.floating-shape {
+  position: absolute;
+  font-size: 2.2rem;
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+  animation: floatUpDown 6s ease-in-out infinite;
+}
+
+.shape-book {
+  top: 15%;
+  left: 8%;
+  animation-delay: 0s;
+}
+
+.shape-pencil {
+  bottom: 25%;
+  left: 12%;
+  font-size: 1.8rem;
+  animation-delay: 1.5s;
+}
+
+.shape-paper {
+  top: 25%;
+  right: 48%;
+  font-size: 1.5rem;
+  animation-delay: 3s;
+}
+
+.shape-palette {
+  bottom: 15%;
+  right: 10%;
+  font-size: 2.4rem;
+  animation-delay: 4.5s;
+}
+
+@keyframes floatUpDown {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(8deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* Hero Grid Layout */
+.hero-container {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 4rem;
+}
+
+@media (max-width: 992px) {
+  .hero-container {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+
+.hero-content {
+  text-align: left;
+}
+
+.hero-badge {
+  margin-bottom: 1.5rem;
+}
+
+.hero-title {
+  margin-bottom: 1.5rem;
+  font-size: 4rem;
+  line-height: 1.15;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 3rem;
+  }
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  max-width: 550px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  padding: 0.9rem 2.2rem;
+  font-size: 1rem;
+}
+
+.main-cta {
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+/* Stats */
+.hero-stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  padding: 1rem 2rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+  min-width: 140px;
+}
+
+.stat-card h4 {
+  font-family: var(--font-sans);
+  font-size: 1.8rem;
+  font-weight: 750;
+  color: var(--accent-color);
+  margin-bottom: 0.25rem;
+}
+
+.stat-card p {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Stack Visual Columns */
+.hero-visual-col {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  height: 400px;
+}
+
+@media (max-width: 992px) {
+  .hero-visual-col {
+    height: 320px;
+    margin-top: 2rem;
+  }
+}
+
+.visual-card-stack {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+}
+
+.visual-card {
+  position: absolute;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  text-align: left;
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-normal);
+}
+
+.visual-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.visual-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.visual-card p {
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.visual-tag {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-contrast);
+  background-color: var(--accent-color);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.75rem;
+}
+
+/* 3D Stack Offset positions */
+.main-visual {
+  width: 260px;
+  top: 0;
+  left: 0;
+  z-index: 3;
+}
+
+.secondary-visual {
+  width: 240px;
+  top: 80px;
+  left: 80px;
+  z-index: 2;
+  border-color: rgba(52, 199, 89, 0.2) !important;
+}
+
+.tertiary-visual {
+  width: 220px;
+  top: 170px;
+  left: 30px;
+  z-index: 1;
+}
+
+.visual-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  z-index: 5;
+}

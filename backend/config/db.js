@@ -9,7 +9,7 @@ const connectDB = async () => {
   }
 
   try {
-    const connString = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/xerox-shop';
+    const connString = process.env.MONGODB_URI || 'mongodb+srv://kalemlarevanth_db_user:F5sbES9vLtINgbPE@cluster0.sx9bxkq.mongodb.net/?appName=Cluster0';
     const conn = await mongoose.connect(connString);
     isConnected = conn.connections[0].readyState === 1;
     console.log(`MongoDB Connected: ${conn.connection.host}`);

@@ -16,7 +16,10 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'https://sri-balaji-stationery-xerox.vercel.app/', // Allow frontend to access
+  credentials: true
+}));
 app.use(express.json());
 
 // Set up directory path resolution for ES modules

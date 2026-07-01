@@ -17,7 +17,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'https://sri-balaji-stationery-xerox.vercel.app/', // Allow frontend to access
+  origin: 'https://sri-balaji-stationary-xerox-1.onrender.com/', // Allow frontend to access
   credentials: true
 }));
 app.use(express.json());

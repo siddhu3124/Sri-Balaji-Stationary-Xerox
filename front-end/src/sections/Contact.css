@@ -1,5 +1,23 @@
 .contact-section {
   position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image var(--transition-normal);
+}
+
+body.light-theme .contact-section {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.30),
+      rgba(255, 255, 255, 0.30)),
+    url('https://res.cloudinary.com/dnrc6z4gs/image/upload/v1782828275/1782807885558_a9dxfj.png');
+}
+
+body.dark-theme .contact-section {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.40),
+      rgba(0, 0, 0, 0.40)),
+    url('https://res.cloudinary.com/dnrc6z4gs/image/upload/v1782828275/1782807885558_a9dxfj.png');
 }
 
 .contact-grid {
@@ -84,6 +102,7 @@
   padding: 1.25rem 1.5rem;
   gap: 1.25rem;
   text-align: left;
+  width: 350px;
 }
 
 .info-card-icon {
@@ -137,10 +156,21 @@
   height: 100%;
 }
 
-.line-1 { top: 35%; }
-.line-2 { top: 70%; }
-.line-3 { left: 40%; }
-.line-4 { left: 75%; }
+.line-1 {
+  top: 35%;
+}
+
+.line-2 {
+  top: 70%;
+}
+
+.line-3 {
+  left: 40%;
+}
+
+.line-4 {
+  left: 75%;
+}
 
 /* Landmarks */
 .map-landmark {
@@ -197,8 +227,15 @@
 }
 
 @keyframes mapPulse {
-  0% { transform: scale(0.5); opacity: 0.8; }
-  100% { transform: scale(2.2); opacity: 0; }
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 .map-pin-label {

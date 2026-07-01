@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiUploadCloud, FiFileText, FiTrash2, FiShoppingBag, FiInfo } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
+import { PDFDocument } from 'pdf-lib';
+import { API_BASE_URL } from '../config';
 import './PrintCalculator.css';
 
 const PrintCalculator = ({ onOrderAdded }) => {
@@ -8,6 +10,7 @@ const PrintCalculator = ({ onOrderAdded }) => {
   const [file, setFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState('idle'); // 'idle', 'uploading', 'scanning', 'completed'
+  const [fileId, setFileId] = useState(null);
   const fileInputRef = useRef(null);
 
   // Configuration options
@@ -71,6 +74,30 @@ const PrintCalculator = ({ onOrderAdded }) => {
     }
   };
 
+  const detectPageCount = (selectedFile) => {
+    return new Promise((resolve) => {
+      if (selectedFile.type === 'application/pdf' || selectedFile.name.toLowerCase().endsWith('.pdf')) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const arrayBuffer = e.target.result;
+            const pdfDoc = await PDFDocument.load(arrayBuffer);
+            resolve(pdfDoc.getPageCount());
+          } catch (err) {
+            console.error('Error parsing PDF page count:', err);
+            resolve(1);
+          }
+        };
+        reader.onerror = () => resolve(1);
+        reader.readAsArrayBuffer(selectedFile);
+      } else if (selectedFile.type.startsWith('image/') || /\.(jpe?g|png)$/i.test(selectedFile.name)) {
+        resolve(1);
+      } else {
+        resolve(1); // Default fallback for doc/docx (allow user edit)
+      }
+    });
+  };
+
   const processFile = (selectedFile) => {
     // Basic validation
     const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
@@ -83,30 +110,57 @@ const PrintCalculator = ({ onOrderAdded }) => {
     setUploadStatus('uploading');
     setUploadProgress(0);
 
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
+    // Prepare multipart form data
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${API_BASE_URL}/api/upload`, true);
+
+    // Track real progress
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const percentComplete = Math.round((e.loaded / e.total) * 100);
+        setUploadProgress(percentComplete);
+      }
+    };
+
+    xhr.onload = async () => {
+      if (xhr.status === 201) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          setFileId(response.file._id);
           setUploadStatus('scanning');
           
-          // Simulate doc scanning for page numbers
+          // Detect real page count
+          const detectedPages = await detectPageCount(selectedFile);
+          
           setTimeout(() => {
             setUploadStatus('completed');
-            // Generate a random page count between 3 and 30 for the mock feel
-            const randomPages = Math.floor(Math.random() * 25) + 3;
-            setPages(randomPages);
-          }, 1500);
-
-          return 100;
+            setPages(detectedPages);
+          }, 1000);
+        } catch (err) {
+          console.error('Error parsing response:', err);
+          alert('Upload failed: Invalid response format from server.');
+          handleRemoveFile();
         }
-        return prev + 10;
-      });
-    }, 150);
+      } else {
+        alert('Upload failed: ' + xhr.statusText);
+        handleRemoveFile();
+      }
+    };
+
+    xhr.onerror = () => {
+      alert('Upload failed: Network error connecting to backend.');
+      handleRemoveFile();
+    };
+
+    xhr.send(formData);
   };
 
   const handleRemoveFile = () => {
     setFile(null);
+    setFileId(null);
     setUploadProgress(0);
     setUploadStatus('idle');
     setPages(1);
@@ -129,6 +183,7 @@ const PrintCalculator = ({ onOrderAdded }) => {
       pages,
       binding,
       instructions,
+      fileId, // Include MongoDB File reference ObjectId
     };
 
     addToCart(printItem, copies, true, printConfig);
@@ -271,10 +326,9 @@ const PrintCalculator = ({ onOrderAdded }) => {
                   className="input-field"
                   value={pages}
                   onChange={(e) => setPages(Math.max(1, parseInt(e.target.value) || 1))}
-                  disabled={uploadStatus === 'completed'} // Lock if auto-detected
                 />
                 {uploadStatus === 'completed' && (
-                  <span className="lock-hint"><FiInfo /> Locked by doc scanner</span>
+                  <span className="lock-hint"><FiInfo /> Auto-detected (Editable)</span>
                 )}
               </div>
 

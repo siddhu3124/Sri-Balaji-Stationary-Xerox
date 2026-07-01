@@ -53,8 +53,11 @@ const Navbar = ({ onCartOpen, onWishlistOpen, activeSection }) => {
       <div className="nav-container">
         {/* Logo */}
         <a href="#home" onClick={(e) => handleLinkClick(e, '#home')} className="logo">
-          <span className="logo-icon"><img src='https://www.wallsnapy.com/img_gallery/tirupati-govinda-png-transparent-hd-logo-358.png' className='images'></img></span>
-          <span className="logo-text">Sri Balaji Xerox & <span className="gold-text">Stationery</span></span>
+          <span className="logo-icon"><img src='https://www.wallsnapy.com/img_gallery/tirupati-govinda-png-transparent-hd-logo-358.png' className='images' alt="Logo"></img></span>
+          <span className="logo-text">
+            <span className="brand-name">Sri Balaji</span>
+            <span className="brand-sub"> Xerox & <span className="gold-text">Stationery</span></span>
+          </span>
         </a>
 
         {/* Desktop Links */}
@@ -74,8 +77,8 @@ const Navbar = ({ onCartOpen, onWishlistOpen, activeSection }) => {
 
         {/* Action Buttons */}
         <div className="nav-actions">
-          {/* Search Toggle */}
-          <div className={`nav-search-container ${searchOpen ? 'open' : ''}`}>
+          {/* Search Toggle (Desktop Only) */}
+          <div className={`nav-search-container hide-mobile ${searchOpen ? 'open' : ''}`}>
             <input
               type="text"
               placeholder="Search books, stationery..."
@@ -92,24 +95,24 @@ const Navbar = ({ onCartOpen, onWishlistOpen, activeSection }) => {
             </button>
           </div>
 
-          {/* Wishlist Icon */}
-          <button onClick={onWishlistOpen} className="action-btn badge-btn" aria-label="Wishlist">
+          {/* Wishlist Icon (Desktop Only) */}
+          <button onClick={onWishlistOpen} className="action-btn badge-btn hide-mobile" aria-label="Wishlist">
             <FiHeart />
             {wishlist.length > 0 && <span className="count-badge">{wishlist.length}</span>}
           </button>
 
-          {/* Cart Icon */}
+          {/* Cart Icon (Always visible) */}
           <button onClick={onCartOpen} className="action-btn badge-btn" aria-label="Cart">
             <FiShoppingBag />
             {getCartCount() > 0 && <span className="count-badge">{getCartCount()}</span>}
           </button>
 
-          {/* Theme Toggle */}
-          <button onClick={toggleTheme} className="action-btn" aria-label="Toggle Theme">
+          {/* Theme Toggle (Desktop Only) */}
+          <button onClick={toggleTheme} className="action-btn hide-mobile" aria-label="Toggle Theme">
             {isDark ? <FiSun /> : <FiMoon />}
           </button>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle (Mobile Only) */}
           <button onClick={() => setIsOpen(!isOpen)} className="mobile-menu-btn" aria-label="Toggle Menu">
             {isOpen ? <FiX /> : <FiMenu />}
           </button>
@@ -118,7 +121,19 @@ const Navbar = ({ onCartOpen, onWishlistOpen, activeSection }) => {
 
       {/* Mobile Drawer */}
       <div className={`mobile-nav ${isOpen ? 'open' : ''} glass-panel`}>
-        <ul>
+        {/* Mobile Search Bar inside Drawer */}
+        <div className="mobile-search-bar">
+          <input
+            type="text"
+            placeholder="Search books, stationery..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="mobile-search-input"
+          />
+          <FiSearch className="mobile-search-icon" />
+        </div>
+
+        <ul className="mobile-nav-links">
           {navLinks.map((link) => (
             <li key={link.label}>
               <a
@@ -131,6 +146,30 @@ const Navbar = ({ onCartOpen, onWishlistOpen, activeSection }) => {
             </li>
           ))}
         </ul>
+
+        {/* Mobile Drawer Actions Footer */}
+        <div className="mobile-drawer-footer">
+          {/* Wishlist Mobile Button */}
+          <button 
+            onClick={() => { onWishlistOpen(); setIsOpen(false); }} 
+            className="mobile-action-btn" 
+            aria-label="Wishlist"
+          >
+            <FiHeart />
+            <span>Wishlist</span>
+            {wishlist.length > 0 && <span className="mobile-count-badge">{wishlist.length}</span>}
+          </button>
+
+          {/* Theme Toggle Mobile Button */}
+          <button 
+            onClick={toggleTheme} 
+            className="mobile-action-btn" 
+            aria-label="Toggle Theme"
+          >
+            {isDark ? <FiSun /> : <FiMoon />}
+            <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+        </div>
       </div>
     </nav>
   );

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { FiX, FiTrash2, FiPlus, FiMinus, FiShoppingBag, FiHeart, FiCheckCircle } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
+import { API_BASE_URL } from '../config';
 import './CartDrawer.css';
 
 const CartDrawer = ({ isOpen, onClose, activeTab, setActiveTab }) => {
-  const { cart, wishlist, removeFromCart, updateQuantity, getCartTotal, addToCart, toggleWishlist } = useCart();
+  const { cart, wishlist, removeFromCart, updateQuantity, getCartTotal, addToCart, toggleWishlist, clearCart } = useCart();
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart', 'checkout', 'success'
+  const [orderId, setOrderId] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -20,9 +23,65 @@ const CartDrawer = ({ isOpen, onClose, activeTab, setActiveTab }) => {
     updateQuantity(itemId, currentQty + delta);
   };
 
-  const handleCheckoutSubmit = (e) => {
+  const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
-    setCheckoutStep('success');
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const orderData = {
+        customer: {
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          delivery: formData.delivery,
+          address: formData.delivery === 'delivery' ? formData.address : undefined,
+        },
+        items: cart.map(item => ({
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          isPrintJob: !!item.isPrintJob,
+          config: item.isPrintJob ? {
+            fileName: item.config.fileName,
+            fileSize: item.config.fileSize,
+            colorMode: item.config.colorMode,
+            printSides: item.config.printSides,
+            pages: item.config.pages,
+            binding: item.config.binding,
+            instructions: item.config.instructions,
+            fileId: item.config.fileId,
+          } : undefined,
+        })),
+        total: getCartTotal() + (formData.delivery === 'delivery' ? 40 : 0),
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to place order: ' + response.statusText);
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setOrderId(result.order._id);
+        clearCart(); // Clear cart immediately on success
+        setCheckoutStep('success');
+      } else {
+        alert('Order failed: ' + result.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred while placing the order: ' + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleMoveToCart = (product) => {
@@ -33,6 +92,7 @@ const CartDrawer = ({ isOpen, onClose, activeTab, setActiveTab }) => {
   const handleClose = () => {
     // Reset checkout state when closing
     setCheckoutStep('cart');
+    setOrderId('');
     onClose();
   };
 
@@ -265,18 +325,19 @@ const CartDrawer = ({ isOpen, onClose, activeTab, setActiveTab }) => {
                   type="button"
                   className="btn btn-secondary"
                   onClick={() => setCheckoutStep('cart')}
+                  disabled={isSubmitting}
                 >
                   Back to Cart
                 </button>
-                <button type="submit" className="btn btn-accent">
-                  Place Order
+                <button type="submit" className="btn btn-accent" disabled={isSubmitting}>
+                  {isSubmitting ? 'Placing Order...' : 'Place Order'}
                 </button>
               </div>
             </form>
           )}
 
           {checkoutStep === 'success' && (
-            /* SUCCESS MOCK PAGE */
+            /* SUCCESS PAGE */
             <div className="success-state animate-fade-in">
               <div className="success-icon">
                 <FiCheckCircle />
@@ -286,7 +347,7 @@ const CartDrawer = ({ isOpen, onClose, activeTab, setActiveTab }) => {
                 Thank you, <strong>{formData.name}</strong>! Your order has been registered.
               </p>
               <div className="order-details-box glass-card">
-                <p><strong>Order ID:</strong> #IP-{Math.floor(100000 + Math.random() * 900000)}</p>
+                <p><strong>Order ID:</strong> #{orderId}</p>
                 <p><strong>Service Type:</strong> {formData.delivery === 'pickup' ? 'Store Pickup' : 'Home Delivery'}</p>
                 <p><strong>Contact phone:</strong> {formData.phone}</p>
                 {formData.delivery === 'delivery' && (
@@ -298,7 +359,7 @@ const CartDrawer = ({ isOpen, onClose, activeTab, setActiveTab }) => {
                 className="btn btn-primary"
                 onClick={() => {
                   // Clear cart, close drawer
-                  setCart([]);
+                  clearCart();
                   handleClose();
                 }}
               >

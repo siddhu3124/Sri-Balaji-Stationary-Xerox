@@ -22,6 +22,8 @@ const App = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [showScrollTop, setShowScrollTop] = useState(false);
 
+
+
   // Scroll Spy to highlight navbar links & show back-to-top button
   useEffect(() => {
     const handleScroll = () => {
